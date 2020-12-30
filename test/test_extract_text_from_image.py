@@ -70,15 +70,68 @@ class MyTestCase(unittest.TestCase):
         from PIL import Image
         import pytesseract as t  # dl http://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-setup-4.00.00dev.exe
         t.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
-        res = t.image_to_string(Image.open('../data/Sample.jpg'))
+        #custom_config = r'--oem 3 --psm 6'
+        res = t.image_to_string(Image.open('../data/Sample.jpg'))#, config=custom_config)
         print(res)
         print("-----------------------------------------------")
-        res = t.image_to_string(Image.open('../data/Complex.jpg'))
+        res = t.image_to_string(Image.open('../data/Complex.jpg'))#, config=custom_config)
         print(res)
         print("-----------------------------------------------")
-        res = t.image_to_string(Image.open('rotated_correted.png'))
+        res = t.image_to_string(Image.open('rotated_correted.png'))#, config=custom_config)
         print(res)
 
+    def test_boxing_text(self):
+        import cv2
+        import pytesseract
+        from matplotlib import pyplot as plt
+        from pytesseract import Output
+        pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
+
+        image = cv2.imread("rotated_correted.png")
+
+        # Saving a original image and shape
+        orig = image.copy()
+
+        # Display the image with bounding box and recognized text
+        orig_image = orig.copy()
+
+        # Moving over the results and display on the image
+        for ((start_X, start_Y, end_X, end_Y), text) in results:
+            # display the text detected by Tesseract
+            print("{}\n".format(text))
+
+            # Displaying text
+            text = "".join([x if ord(x) < 128 else "" for x in text]).strip()
+            cv2.rectangle(orig_image, (start_X, start_Y), (end_X, end_Y),
+                          (0, 0, 255), 2)
+            cv2.putText(orig_image, text, (start_X, start_Y - 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        plt.imshow(orig_image)
+        plt.title('Output')
+        plt.show()
+
+
+
+
+    def test_extract_text_from_image_5(self):
+        """
+        Complexes and find pattern for ALDI Ticket
+        :return:
+        """
+        import ticketanalyser
+        dir = "../data/"
+        path_img_list = [dir + "Aldi_1.jpg", dir + "Aldi_2.jpg"]
+        for path_img in path_img_list:
+            ticketanalyser.ticket_image_to_text(path_img)
+
+
+
+    def test_extract_text_from_image_6(self):
+        """
+        Complexes and find pattern for Carrefour Market
+        :return:
+        """
 
 if __name__ == '__main__':
     unittest.main()
